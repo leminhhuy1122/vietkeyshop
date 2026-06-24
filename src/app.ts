@@ -1,11 +1,11 @@
-import dotenv from "dotenv";
+﻿import dotenv from "dotenv";
 dotenv.config({ path: ".env.local", override: true });
 import express from "express";
 import path from "path";
 import fs from "fs";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
-import mongoose from "mongoose";
+
 import { DatabaseService } from "./lib/database/db.service.js";
 import { ShopService } from "./lib/services/shop.service.js";
 import { ImageModel } from "./lib/database/models/index.js";
@@ -34,6 +34,23 @@ try {
 
 // Phục vụ ảnh upload tĩnh (local dev)
 app.use("/uploads", express.static(UPLOADS_DIR));
+
+app.get("/api/health", async (req, res) => {
+  try {
+    await db.connect();
+    res.json({
+      ok: true,
+      database: "connected",
+      env: process.env.NODE_ENV || "development",
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      ok: false,
+      database: "disconnected",
+      message: error.message,
+    });
+  }
+});
 
 // ==========================================
 // MIDDLEWARE XÁC THỰC JWT
@@ -79,19 +96,19 @@ const requireAdmin = (
   next();
 };
 
-const requireDatabaseReady = (
+const requireDatabaseReady = async (
   req: express.Request,
   res: express.Response,
   next: express.NextFunction,
-): void => {
-  if (mongoose.connection.readyState !== 1) {
+): Promise<void> => {
+  try {
+    await db.connect();
+    next();
+  } catch (error: any) {
     res.status(503).json({
-      message:
-        "Database chưa kết nối. Vui lòng kiểm tra DATABASE_URL trong .env.local.",
+      message: error.message || "Database chưa sẵn sàng.",
     });
-    return;
   }
-  next();
 };
 
 // ==========================================
@@ -348,8 +365,8 @@ const updateLeadStatusHandler = async (
       res.status(400).json({ message: "Trạng thái không hợp lệ" });
       return;
     }
-    const lead = await ShopService.updateLeadStatus(req.params.id, status);
-    res.json(lead);
+    const Math = await ShopService.updateLeadStatus(req.params.id, status);
+    res.json(Math);
   } catch (error: any) {
     res.status(400).json({ message: error.message });
   }

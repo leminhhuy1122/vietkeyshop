@@ -1,20 +1,33 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+﻿# VietKey Shop
 
-# Run and deploy your AI Studio app
+Ứng dụng React + Express API chạy local bằng Vite/tsx và deploy lên Vercel bằng `api/index.ts`.
 
-This contains everything you need to run your app locally.
+## Chạy local
 
-View your app in AI Studio: https://ai.studio/apps/9f463d21-001b-4b4d-9158-bccb9013568d
+**Yêu cầu:** Node.js
 
-## Run Locally
+1. Cài dependencies: `npm install`
+2. Tạo `.env.local` từ `.env.example`
+3. Chạy app: `npm run dev`
+4. Nếu chỉ chạy frontend: `npm run dev:client`
 
-**Prerequisites:**  Node.js
+## Deploy Vercel
 
+### Build/runtime
+- Frontend build bằng `vite build`
+- API chạy qua Vercel Serverless Function tại `api/index.ts`
+- `vercel.json` đã rewrite `/api/*` vào function và route còn lại về SPA `index.html`
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+### Biến môi trường bắt buộc
+- `DATABASE_URL` hoặc `MONGODB_URI`
+- `JWT_SECRET`
+
+### Khuyến nghị
+- Dùng MongoDB Atlas thay vì Mongo local
+- Đặt `JWT_SECRET` đủ dài và ngẫu nhiên
+- Kiểm tra health endpoint sau deploy: `/api/health`
+
+## Các endpoint kiểm tra nhanh
+- `GET /api/health`
+- `POST /api/auth/login`
+- `GET /api/settings`

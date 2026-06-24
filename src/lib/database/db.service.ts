@@ -4,11 +4,28 @@ import { SiteSettingModel } from "./models/index.js";
 
 dotenv.config({ path: ".env.local", override: true });
 
-const MONGODB_URI = process.env.DATABASE_URL || process.env.MONGODB_URI || "mongodb://localhost:27017/vietkey-shop";
+function resolveMongoUri(): string {
+  const configuredUri = process.env.DATABASE_URL || process.env.MONGODB_URI;
+
+  if (configuredUri) {
+    return configuredUri;
+  }
+
+  const isServerlessDeployment =
+    process.env.VERCEL === "1" || process.env.NODE_ENV === "production";
+
+  if (isServerlessDeployment) {
+    throw new Error(
+      "Thiếu DATABASE_URL hoặc MONGODB_URI. Hãy cấu hình biến môi trường MongoDB trên Vercel.",
+    );
+  }
+
+  return "mongodb://localhost:27017/vietkey-shop";
+}
 
 export class DatabaseService {
   private static instance: DatabaseService;
-  private static isConnecting = false;
+  private static connectPromise: Promise<void> | null = null;
 
   private constructor() {}
 
@@ -20,25 +37,32 @@ export class DatabaseService {
   }
 
   public async connect(): Promise<void> {
-    if (mongoose.connection.readyState === 1) return; // already connected
-    if (DatabaseService.isConnecting) return;
-    DatabaseService.isConnecting = true;
+    if (mongoose.connection.readyState === 1) return;
+    if (DatabaseService.connectPromise) {
+      await DatabaseService.connectPromise;
+      return;
+    }
 
-    try {
-      await mongoose.connect(MONGODB_URI);
+    DatabaseService.connectPromise = (async () => {
+      const mongoUri = resolveMongoUri();
+
+      await mongoose.connect(mongoUri);
       console.log("[MongoDB] Kết nối thành công!");
 
       await this.ensureDefaultSettings();
+    })();
+
+    try {
+      await DatabaseService.connectPromise;
     } catch (error) {
       console.error("[MongoDB] Lỗi kết nối:", error);
       throw error;
     } finally {
-      DatabaseService.isConnecting = false;
+      DatabaseService.connectPromise = null;
     }
   }
 
   private async ensureDefaultSettings() {
-    // Chi tao record neu chua ton tai (setOnInsert), khong ghi de du lieu da co
     await SiteSettingModel.findOneAndUpdate(
       {},
       {
@@ -55,11 +79,7 @@ export class DatabaseService {
           gtm: "",
         },
       },
-      { upsert: true, new: true }
+      { upsert: true, new: true },
     );
   }
-
-
-  // Gi\u1eef l\u1ea1i c\u00e1c ph\u01b0\u01a1ng th\u1ee9c c\u0169 \u0111\u1ec3 t\u01b0\u01a1ng th\u00edch ng\u01b0\u1ee3c v\u1edbi repositories
-  // (s\u1ebd x\u00f3a sau khi repositories \u0111\u01b0\u1ee3c c\u1eadp nh\u1eadt ho\u00e0n to\u00e0n)
 }
