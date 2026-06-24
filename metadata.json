@@ -1,0 +1,6 @@
+{
+  "name": "VietKey Shop",
+  "description": "Nền tảng chuyên nghiệp bán mẫu Landing Page SEO, thiết kế Landing Page theo yêu cầu và tối ưu chuyển đổi hàng đầu.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

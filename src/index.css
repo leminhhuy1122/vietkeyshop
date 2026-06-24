@@ -1,0 +1,112 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@700&family=JetBrains+Mono:wght@600&display=swap');
+@import "tailwindcss";
+
+@variant dark (&:where(.dark, .dark *));
+
+:root {
+  font-size: 125%;
+
+  --background: #F8FAFC;
+  --background-secondary: #FFFFFF;
+  --card: #FFFFFF;
+  --card-hover: #F8FAFC;
+  --border: #E2E8F0;
+  --primary: #4F46E5;
+  --primary-hover: #4338CA;
+  --secondary: #06B6D4;
+  --success: #10B981;
+  --foreground: #0F172A;
+  --foreground-secondary: #475569;
+  --foreground-muted: #64748B;
+  --badge-bg: #EEF2FF;
+  --badge-text: #4F46E5;
+}
+
+.dark {
+  --background: #08111F;
+  --background-secondary: #0F172A;
+  --card: #0F172A;
+  --card-hover: #172033;
+  --border: #1E293B;
+  --primary: #6366F1;
+  --primary-hover: #818CF8;
+  --secondary: #22D3EE;
+  --success: #34D399;
+  --foreground: #F8FAFC;
+  --foreground-secondary: #CBD5E1;
+  --foreground-muted: #94A3B8;
+  --badge-bg: rgba(99,102,241,0.15);
+  --badge-text: #A5B4FC;
+}
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-space: "Space Grotesk", sans-serif;
+  
+  --color-background: var(--background);
+  --color-background-secondary: var(--background-secondary);
+  --color-card: var(--card);
+  --color-card-hover: var(--card-hover);
+  --color-border: var(--border);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-secondary: var(--secondary);
+  --color-success: var(--success);
+  --color-foreground: var(--foreground);
+  --color-foreground-secondary: var(--foreground-secondary);
+  --color-foreground-muted: var(--foreground-muted);
+  --color-badge-bg: var(--badge-bg);
+  --color-badge-text: var(--badge-text);
+  
+  --color-brand-50: #f5f7fa;
+  --color-brand-100: #e4e7eb;
+  --color-brand-500: #4f46e5;
+  --color-brand-600: #4338ca;
+  --color-brand-700: #3730a3;
+  --color-brand-900: #1e1b4b;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--background);
+  color: var(--foreground);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Ensure smooth transition for key parts of the app during theme changes */
+header, footer, nav, button, input, textarea, a, div, section {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Base custom utility for high-readability in light mode */
+.text-muted-readable {
+  color: var(--foreground-secondary);
+}
+
+/* Custom scrollbar for modern feel */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #272e3f;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+@keyframes vietkey-load {
+  from { transform: scaleX(0); opacity: 0.75; }
+  70% { transform: scaleX(0.92); opacity: 1; }
+  to { transform: scaleX(1); opacity: 0; }
+}

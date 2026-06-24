@@ -1,0 +1,15 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 50" fill="none">
+  <defs>
+    <linearGradient id="v-logo-grad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#4F46E5"/>
+      <stop offset="100%" stop-color="#6366F1"/>
+    </linearGradient>
+  </defs>
+  <!-- Icon: cách điệu chữ V -->
+  <rect x="4" y="4" width="36" height="36" rx="10" fill="url(#v-logo-grad)"/>
+  <path d="M14 28L22 14L30 28" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M12 28L22 10L32 28" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.3"/>
+  <!-- Text: VietKey Shop -->
+  <text x="48" y="29" font-family="Inter, system-ui, sans-serif" font-weight="800" font-size="22" fill="#0F172A" letter-spacing="-0.5">VietKey</text>
+  <text x="48" y="46" font-family="Inter, system-ui, sans-serif" font-weight="700" font-size="14" fill="#4F46E5" letter-spacing="2">SHOP</text>
+</svg>
