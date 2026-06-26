@@ -11,6 +11,7 @@ import {
   Moon,
   Sun,
   LayoutDashboard,
+  Trash2,
 } from "lucide-react";
 
 interface AdminTopbarProps {
@@ -28,6 +29,7 @@ interface AdminTopbarProps {
   notificationUnreadCount: number;
   onNotificationRead: (id: string) => void;
   onNotificationsReadAll: () => void;
+  onNotificationDelete: (id: string) => void;
 }
 
 export function AdminTopbar({
@@ -43,6 +45,7 @@ export function AdminTopbar({
   notificationUnreadCount,
   onNotificationRead,
   onNotificationsReadAll,
+  onNotificationDelete,
 }: AdminTopbarProps) {
   const [globalSearch, setGlobalSearch] = useState("");
   const [showNotificationList, setShowNotificationList] = useState(false);
@@ -252,20 +255,36 @@ export function AdminTopbar({
                       onClick={() =>
                         !item.isRead && onNotificationRead(item.id)
                       }
-                      className="p-3.5 hover:bg-slate-50 transition cursor-pointer text-xs"
+                      className="group p-3.5 hover:bg-slate-50 transition cursor-pointer text-xs"
                     >
-                      <div className="flex items-center gap-1.5 font-bold text-slate-800">
-                        <span
-                          className={`w-2 h-2 rounded-full ${item.isRead ? "bg-slate-300" : "bg-indigo-600"}`}
-                        />
-                        <span>{item.title}</span>
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-1.5 font-bold text-slate-800">
+                            <span
+                              className={`w-2 h-2 shrink-0 rounded-full ${item.isRead ? "bg-slate-300" : "bg-indigo-600"}`}
+                            />
+                            <span className="truncate">{item.title}</span>
+                          </div>
+                          <p className="text-slate-500 text-[10px] mt-1">
+                            {item.message}
+                          </p>
+                          <span className="text-[9px] text-slate-400 mt-1 block">
+                            {new Date(item.createdAt).toLocaleString("vi-VN")}
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            onNotificationDelete(item.id);
+                          }}
+                          className="shrink-0 p-1.5 rounded-lg text-slate-300 opacity-0 transition hover:bg-rose-50 hover:text-rose-500 group-hover:opacity-100 focus:opacity-100"
+                          title="Delete notification"
+                          aria-label="Delete notification"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
                       </div>
-                      <p className="text-slate-500 text-[10px] mt-1">
-                        {item.message}
-                      </p>
-                      <span className="text-[9px] text-slate-400 mt-1 block">
-                        {new Date(item.createdAt).toLocaleString("vi-VN")}
-                      </span>
                     </div>
                   ))
                 )}

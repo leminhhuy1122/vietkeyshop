@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+﻿import React, { useState, useMemo } from "react";
 import {
   AreaChart,
   CartesianGrid,
@@ -39,6 +39,8 @@ import {
   Globe,
   Share2,
   BookOpen,
+  Palette,
+  Type,
 } from "lucide-react";
 import {
   LandingPage,
@@ -73,6 +75,7 @@ interface AdminTabsContentProps {
 
   settingsForm: any;
   setSettingsForm: (form: any) => void;
+  handleImageUpload: (e: React.ChangeEvent<HTMLInputElement>, setter: (url: string) => void) => void;
   handleSettingsSubmit: (e: React.FormEvent) => void;
   submitting: boolean;
   addToast: (msg: string, type: "success" | "error" | "info") => void;
@@ -96,6 +99,7 @@ export function AdminTabsContent({
   handleDeleteBlog,
   settingsForm,
   setSettingsForm,
+  handleImageUpload,
   handleSettingsSubmit,
   submitting,
   addToast,
@@ -129,8 +133,23 @@ export function AdminTabsContent({
 
   // Settings Tab
   const [settingsActiveSubTab, setSettingsActiveSubTab] = useState<
-    "general" | "seo" | "analytics" | "contact" | "social"
+    "general" | "branding" | "seo" | "analytics" | "contact" | "social"
   >("general");
+  const [brandingSection, setBrandingSection] = useState<"colors" | "logo" | "typography">("colors");
+
+  const colorPresets = [
+    { name: "Clay Journal", primary: "#9A3412", secondary: "#EA580C", accent: "#F59E0B", header: "#FFFDFC", footer: "#3F190F", button: "#9A3412", title: "#3F190F", note: "Warm ecommerce" },
+    { name: "Pearl Slate", primary: "#334155", secondary: "#64748B", accent: "#0EA5E9", header: "#FFFFFF", footer: "#0F172A", button: "#334155", title: "#0F172A", note: "Clean B2B" },
+    { name: "Sage Paper", primary: "#4D7C0F", secondary: "#84CC16", accent: "#CA8A04", header: "#FEFEFB", footer: "#1F2A1A", button: "#4D7C0F", title: "#1F2A1A", note: "Natural trust" },
+    { name: "Blush Ledger", primary: "#BE185D", secondary: "#FB7185", accent: "#FDBA74", header: "#FFFFFF", footer: "#3B1025", button: "#BE185D", title: "#3B1025", note: "Elegant beauty" },
+    { name: "Deep Fjord", primary: "#0EA5E9", secondary: "#38BDF8", accent: "#14B8A6", header: "#F8FCFF", footer: "#08131B", button: "#0369A1", title: "#082F49", note: "Tech support" },
+    { name: "Ink Copper", primary: "#C2410C", secondary: "#EA580C", accent: "#FACC15", header: "#FFF7ED", footer: "#120F0C", button: "#C2410C", title: "#431407", note: "Premium craft" },
+    { name: "Oatmilk Studio", primary: "#44403C", secondary: "#A8A29E", accent: "#C08457", header: "#FFFFFF", footer: "#1C1917", button: "#44403C", title: "#1C1917", note: "Minimal premium" },
+    { name: "Lavender Ledger", primary: "#6D28D9", secondary: "#A78BFA", accent: "#FB7185", header: "#FFFFFF", footer: "#2E1065", button: "#6D28D9", title: "#2E1065", note: "Soft creative" },
+    { name: "Graphite Lime", primary: "#65A30D", secondary: "#A3E635", accent: "#FDE047", header: "#F7FEE7", footer: "#101316", button: "#4D7C0F", title: "#1A2E05", note: "Sharp analytics" },
+  ];
+
+  const fontPresets = ["Inter", "Space Grotesk", "Manrope", "Sora", "Outfit", "Plus Jakarta Sans"];
 
   // Local helper for relative sample calculation
   const totalLpsCount = stats?.totalProducts ?? lps.length;
@@ -1448,6 +1467,13 @@ export function AdminTabsContent({
               <span>Cấu hình chung</span>
             </button>
             <button
+              onClick={() => setSettingsActiveSubTab("branding")}
+              className={`w-full text-left px-3.5 py-2.5 rounded-lg flex items-center space-x-2 transition ${settingsActiveSubTab === "branding" ? "bg-white text-indigo-600 font-extrabold border border-slate-200 shadow-sm" : "hover:bg-slate-100 hover:text-slate-800"}`}
+            >
+              <Palette className="w-3.5 h-3.5 text-slate-400" />
+              <span>Thương hiệu</span>
+            </button>
+            <button
               onClick={() => setSettingsActiveSubTab("contact")}
               className={`w-full text-left px-3.5 py-2.5 rounded-lg flex items-center space-x-2 transition ${settingsActiveSubTab === "contact" ? "bg-white text-indigo-600 font-extrabold border border-slate-200 shadow-sm" : "hover:bg-slate-100 hover:text-slate-800"}`}
             >
@@ -1486,8 +1512,8 @@ export function AdminTabsContent({
                       Đường dẫn URL Logo của VietKey
                     </label>
                     <input
-                      type="url"
-                      placeholder="https://"
+                      type="text"
+                      placeholder="/logo1.png or https://example.com/logo.svg"
                       value={settingsForm.logo}
                       onChange={(e) =>
                         setSettingsForm({
@@ -1507,6 +1533,123 @@ export function AdminTabsContent({
                       />
                     </div>
                   )}
+                </div>
+              )}
+
+              {settingsActiveSubTab === "branding" && (
+                <div className="space-y-6 animate-fade-in">
+                  <div>
+                    <h3 className="text-sm font-extrabold text-[#111827]">Tùy chỉnh thương hiệu</h3>
+                    <p className="mt-1 text-[11px] font-semibold text-slate-500">Chọn từng khu để chỉnh riêng. Khi lưu, các khu khác giữ nguyên giá trị hiện tại.</p>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-2 rounded-2xl border border-slate-200 bg-slate-50 p-1.5">
+                    {[
+                      ["colors", "Màu sắc", Palette],
+                      ["logo", "Logo", Sparkles],
+                      ["typography", "Phông chữ", Type],
+                    ].map(([section, label, Icon]) => (
+                      <button
+                        key={section as string}
+                        type="button"
+                        onClick={() => setBrandingSection(section as "colors" | "logo" | "typography")}
+                        className={`flex items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-[11px] font-black transition ${brandingSection === section ? "bg-white text-indigo-600 shadow-sm ring-1 ring-slate-200" : "text-slate-500 hover:bg-white/70 hover:text-slate-800"}`}
+                      >
+                        <Icon className="w-3.5 h-3.5" />
+                        <span>{label as string}</span>
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="grid grid-cols-1 xl:grid-cols-[1.1fr_0.9fr] gap-5">
+                    <div className="space-y-5">
+                      {brandingSection === "colors" && (
+                        <div className="rounded-2xl border border-slate-200 bg-white p-4 space-y-4">
+                          <label className="text-slate-700 flex items-center gap-2"><Palette className="w-4 h-4 text-indigo-500" />Bảng màu</label>
+                          <p className="text-[11px] font-semibold text-slate-500">Chỉ chỉnh màu trong khu này. Logo và phông chữ không bị thay đổi.</p>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            {colorPresets.map((preset) => (
+                              <button
+                                key={preset.name}
+                                type="button"
+                                onClick={() => setSettingsForm({
+                                  ...settingsForm,
+                                  brandPrimaryColor: preset.primary,
+                                  brandSecondaryColor: preset.secondary,
+                                  brandAccentColor: preset.accent,
+                                  brandHeaderColor: preset.header,
+                                  brandFooterColor: preset.footer,
+                                  brandButtonColor: preset.button,
+                                  brandTitleColor: preset.title,
+                                })}
+                                className="group rounded-2xl border border-slate-200 bg-slate-50 p-2.5 text-left transition hover:-translate-y-0.5 hover:bg-white hover:shadow-md"
+                              >
+                                <span className="flex items-center justify-between gap-3">
+                                  <span className="text-[11px] font-extrabold text-slate-700">{preset.name}</span>
+                                  <span className="text-[9px] font-black uppercase tracking-wide text-slate-400">{preset.note}</span>
+                                </span>
+                                <span className="mt-2 grid grid-cols-7 overflow-hidden rounded-full border border-white shadow-sm">
+                                  {[preset.primary, preset.secondary, preset.accent, preset.header, preset.footer, preset.button, preset.title].map((color, index) => (
+                                    <span key={`${preset.name}-${index}`} className="h-5" style={{ backgroundColor: color }} />
+                                  ))}
+                                </span>
+                              </button>
+                            ))}
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            {[["Màu chính", "brandPrimaryColor"], ["Màu phụ", "brandSecondaryColor"], ["Màu nhấn", "brandAccentColor"], ["Header", "brandHeaderColor"], ["Footer", "brandFooterColor"], ["Nút bấm", "brandButtonColor"], ["Tiêu đề", "brandTitleColor"]].map(([label, field]) => (
+                              <label key={field} className="space-y-1.5 text-slate-500">
+                                <span>{label}</span>
+                                <div className="flex gap-2">
+                                  <input type="color" value={settingsForm[field] || "#9A3412"} onChange={(e) => setSettingsForm({ ...settingsForm, [field]: e.target.value })} className="h-10 w-12 rounded-lg border bg-white p-1" />
+                                  <input type="text" value={settingsForm[field] || ""} onChange={(e) => setSettingsForm({ ...settingsForm, [field]: e.target.value })} className="min-w-0 flex-1 rounded-xl border bg-slate-50 p-2.5 font-mono focus:bg-white focus:outline-none" />
+                                </div>
+                              </label>
+                            ))}
+                          </div>
+                          <button type="submit" disabled={submitting} className="w-full rounded-xl bg-indigo-600 px-4 py-3 text-xs font-black text-white shadow-lg shadow-indigo-100 transition hover:bg-indigo-700 disabled:opacity-40">{submitting ? "Đang lưu màu..." : "Lưu màu sắc"}</button>
+                        </div>
+                      )}
+
+                      {brandingSection === "logo" && (
+                        <div className="rounded-2xl border border-slate-200 bg-slate-50/60 p-4 space-y-3">
+                          <label className="text-slate-700 flex items-center gap-2"><Sparkles className="w-4 h-4 text-amber-500" />Logo</label>
+                          <p className="text-[11px] font-semibold text-slate-500">Tải logo hoặc dán đường dẫn nội bộ như /api/images/logo.png.</p>
+                          <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, (url) => setSettingsForm({ ...settingsForm, logo: url }))} className="block w-full text-[11px] text-slate-500 file:mr-3 file:rounded-lg file:border-0 file:bg-slate-900 file:px-3 file:py-2 file:text-[11px] file:font-bold file:text-white hover:file:bg-slate-700" />
+                          <input type="text" placeholder="/api/images/logo.png" value={settingsForm.logo} onChange={(e) => setSettingsForm({ ...settingsForm, logo: e.target.value })} className="w-full p-2.5 bg-white border rounded-xl font-mono focus:outline-none focus:border-indigo-500" />
+                          <button type="submit" disabled={submitting} className="w-full rounded-xl bg-slate-900 px-4 py-3 text-xs font-black text-white shadow-lg transition hover:bg-slate-700 disabled:opacity-40">{submitting ? "Đang lưu logo..." : "Lưu logo"}</button>
+                        </div>
+                      )}
+
+                      {brandingSection === "typography" && (
+                        <div className="rounded-2xl border border-slate-200 bg-white p-4 space-y-3">
+                          <label className="text-slate-700 flex items-center gap-2"><Type className="w-4 h-4 text-indigo-500" />Phông chữ</label>
+                          <p className="text-[11px] font-semibold text-slate-500">Chỉ chọn hoặc tải phông chữ khi cần, không ảnh hưởng màu và logo.</p>
+                          <select value={settingsForm.brandFontFamily || "Inter"} onChange={(e) => setSettingsForm({ ...settingsForm, brandFontFamily: e.target.value, brandFontSource: "preset" })} className="w-full rounded-xl border bg-slate-50 p-2.5 focus:bg-white focus:outline-none">
+                            {fontPresets.map((font) => <option key={font} value={font}>{font}</option>)}
+                          </select>
+                          <input type="file" accept=".woff,.woff2,.ttf,.otf,font/*" onChange={(e) => handleImageUpload(e, (url) => setSettingsForm({ ...settingsForm, brandFontUrl: url, brandFontSource: "uploaded" }))} className="block w-full text-[11px] text-slate-500 file:mr-3 file:rounded-lg file:border-0 file:bg-indigo-600 file:px-3 file:py-2 file:text-[11px] file:font-bold file:text-white hover:file:bg-indigo-700" />
+                          <input type="text" placeholder="Uploaded font family name" value={settingsForm.brandFontFamily || ""} onChange={(e) => setSettingsForm({ ...settingsForm, brandFontFamily: e.target.value })} className="w-full rounded-xl border bg-slate-50 p-2.5 focus:bg-white focus:outline-none" />
+                          <button type="submit" disabled={submitting} className="w-full rounded-xl bg-indigo-600 px-4 py-3 text-xs font-black text-white shadow-lg shadow-indigo-100 transition hover:bg-indigo-700 disabled:opacity-40">{submitting ? "Đang lưu phông chữ..." : "Lưu phông chữ"}</button>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="rounded-3xl border border-slate-200 bg-slate-950 p-4 shadow-xl">
+                      <div className="overflow-hidden rounded-2xl bg-white" style={{ fontFamily: `"${settingsForm.brandFontFamily || "Inter"}", Inter, sans-serif` }}>
+                        <div className="flex items-center justify-between px-4 py-3" style={{ backgroundColor: settingsForm.brandHeaderColor || "#FFFDFC" }}>
+                          <img src={settingsForm.logo || "/logo1.png"} alt="Brand preview logo" className="h-8 max-w-28 object-contain" />
+                          <span className="rounded-full px-3 py-1 text-[10px] font-black text-white" style={{ backgroundColor: settingsForm.brandButtonColor || "#9A3412" }}>Nút bấm</span>
+                        </div>
+                        <div className="space-y-3 p-5">
+                          <p className="text-[10px] font-black uppercase tracking-[0.22em]" style={{ color: settingsForm.brandAccentColor || "#F59E0B" }}>Xem trước</p>
+                          <h4 className="text-2xl font-black leading-tight" style={{ color: settingsForm.brandTitleColor || "#3F190F" }}>Tiêu đề website</h4>
+                          <p className="text-xs font-medium text-slate-500">Header, footer, nút bấm và tiêu đề sẽ dùng màu đã lưu.</p>
+                        </div>
+                        <div className="px-5 py-4 text-xs font-bold text-white" style={{ backgroundColor: settingsForm.brandFooterColor || "#0F172A" }}>Khu vực footer</div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
 
@@ -1705,3 +1848,4 @@ export function AdminTabsContent({
 
   return null;
 }
+

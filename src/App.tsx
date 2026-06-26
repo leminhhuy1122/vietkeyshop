@@ -14,6 +14,16 @@ const EMPTY_SETTINGS: SiteSetting = {
   youtube: "",
   analytics: "",
   gtm: "",
+  brandPrimaryColor: "#9A3412",
+  brandSecondaryColor: "#EA580C",
+  brandAccentColor: "#F59E0B",
+  brandHeaderColor: "#FFFDFC",
+  brandFooterColor: "#0F172A",
+  brandButtonColor: "#9A3412",
+  brandTitleColor: "#3F190F",
+  brandFontFamily: "Inter",
+  brandFontSource: "preset",
+  brandFontUrl: "",
 };
 
 // Shared shell loads immediately; views are split per route for faster first paint.
@@ -94,11 +104,56 @@ function AppContent() {
     }
   }, [darkMode]);
 
+  useEffect(() => {
+    const root = document.documentElement;
+    const fontFamily = settings.brandFontFamily || "Inter";
+    const safeFontFamily = fontFamily.replace(/[^a-zA-Z0-9 _-]/g, "").trim() || "Inter";
+    const bodyFont = `"${safeFontFamily}", "Inter", "Segoe UI", sans-serif`;
+
+    const primaryColor = settings.brandPrimaryColor || "#9A3412";
+    const secondaryColor = settings.brandSecondaryColor || "#EA580C";
+    const accentColor = settings.brandAccentColor || "#F59E0B";
+    const buttonColor = settings.brandButtonColor || primaryColor;
+    const titleColor = settings.brandTitleColor || "#3F190F";
+
+    root.style.setProperty("--primary", primaryColor);
+    root.style.setProperty("--primary-hover", secondaryColor);
+    root.style.setProperty("--secondary", accentColor);
+    root.style.setProperty("--brand-header", settings.brandHeaderColor || "#FFFDFC");
+    root.style.setProperty("--brand-footer", settings.brandFooterColor || "#0F172A");
+    root.style.setProperty("--brand-button", buttonColor);
+    root.style.setProperty("--brand-title", titleColor);
+    root.style.setProperty("--brand-accent", accentColor);
+    root.style.setProperty("--brand-primary-soft", `color-mix(in srgb, ${primaryColor} 12%, transparent)`);
+    root.style.setProperty("--brand-primary-muted", `color-mix(in srgb, ${primaryColor} 18%, white)`);
+    root.style.setProperty("--font-sans", bodyFont);
+    root.style.setProperty("--font-space", bodyFont);
+
+    ["500", "600", "650", "700", "750"].forEach((shade) => {
+      root.style.setProperty(`--color-indigo-${shade}`, primaryColor);
+      root.style.setProperty(`--color-violet-${shade}`, primaryColor);
+    });
+    root.style.setProperty("--color-indigo-50", `color-mix(in srgb, ${primaryColor} 10%, white)`);
+    root.style.setProperty("--color-indigo-100", `color-mix(in srgb, ${primaryColor} 18%, white)`);
+    root.style.setProperty("--color-indigo-200", `color-mix(in srgb, ${primaryColor} 28%, white)`);
+    root.style.setProperty("--color-orange-500", accentColor);
+    root.style.setProperty("--color-amber-500", accentColor);
+
+    const styleId = "uploaded-brand-font";
+    document.getElementById(styleId)?.remove();
+    if (settings.brandFontSource === "uploaded" && settings.brandFontUrl) {
+      const style = document.createElement("style");
+      style.id = styleId;
+      style.textContent = `@font-face { font-family: "${safeFontFamily}"; src: url("${settings.brandFontUrl}"); font-display: swap; }`;
+      document.head.appendChild(style);
+    }
+  }, [settings]);
+
   // Admin dashboard hoan toan tach biet layout voi trang khach hang
   const isAdminArea = location.pathname.startsWith("/admin/dashboard");
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className={`flex flex-col min-h-screen ${isAdminArea ? "" : "vietkey-public-shell"}`}>
       {hydrating && (
         <div className="fixed inset-x-0 top-0 z-[70] h-1 bg-indigo-100/80 dark:bg-slate-800" aria-live="polite">
           <div className="h-full w-2/3 origin-left animate-[vietkey-load_450ms_ease-out_forwards] bg-gradient-to-r from-indigo-500 via-violet-500 to-emerald-400 shadow-[0_0_18px_rgba(79,70,229,0.45)]" />
@@ -120,7 +175,13 @@ function AppContent() {
           <Route
             path="/admin/dashboard"
             element={
-              <AdminDashboardView settings={settings} setRefreshSettings={setRefreshSettings} />
+              <AdminDashboardView
+                settings={settings}
+                setRefreshSettings={setRefreshSettings}
+                onSettingsSaved={(updatedSettings) =>
+                  setSettings({ ...EMPTY_SETTINGS, ...updatedSettings })
+                }
+              />
             }
           />
           {/* Fallback route */}

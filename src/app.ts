@@ -594,7 +594,7 @@ app.post(
         return;
       }
 
-      const matches = image.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+      const matches = image.match(/^data:([^;]+);base64,(.+)$/);
       let base64Data = image;
       let mimeType = "image/png";
       if (matches && matches.length === 3) {
@@ -602,7 +602,7 @@ app.post(
         base64Data = matches[2];
       }
 
-      // Lưu vào MongoDB (hoạt động trên Vercel)
+      // Store uploaded files in MongoDB for serverless deployments.
       const imgDoc = await ImageModel.create({
         filename: Date.now() + "_" + filename.replace(/[^a-zA-Z0-9.\-_]/g, ""),
         data: base64Data,
@@ -616,7 +616,7 @@ app.post(
   },
 );
 
-// Phục vụ ảnh từ MongoDB
+// Serve uploaded files from MongoDB.
 app.get("/api/images/:id", async (req, res) => {
   try {
     const img = await ImageModel.findById(req.params.id);

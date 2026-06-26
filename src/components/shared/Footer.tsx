@@ -19,10 +19,10 @@ export default function Footer({ settings }: FooterProps) {
   return (
     <footer
       id="global-footer"
-      className="bg-slate-900 text-slate-400 border-t border-slate-800"
+      className="brand-footer bg-slate-900 text-slate-400 border-t border-slate-800"
     >
       {/* Top Banner Accent */}
-      <div className="bg-indigo-600 h-[3px]" />
+      <div className="brand-button h-[3px]" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 lg:gap-12">
@@ -34,7 +34,7 @@ export default function Footer({ settings }: FooterProps) {
               aria-label="VietKey Shop"
             >
               <img
-                src="/logo1.png"
+                src={settings.logo || "/logo1.png"}
                 alt="VietKey Shop"
                 className="h-10 w-auto object-contain"
               />

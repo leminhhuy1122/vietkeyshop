@@ -21,11 +21,13 @@ import { AdminModals } from "./admin/AdminModals";
 interface AdminDashboardViewProps {
   settings: SiteSetting;
   setRefreshSettings: (val: boolean) => void;
+  onSettingsSaved?: (settings: SiteSetting) => void;
 }
 
 export default function AdminDashboardView({
   settings,
   setRefreshSettings,
+  onSettingsSaved,
 }: AdminDashboardViewProps) {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<
@@ -79,19 +81,31 @@ export default function AdminDashboardView({
     published: false,
   });
 
-  // Settings form - dong bo voi settings prop tu DB
-  const [settingsForm, setSettingsForm] = useState({
-    logo: settings.logo || "",
-    hotline: settings.hotline || "",
-    email: settings.email || "",
-    contactEmail: (settings as any).contactEmail || "",
-    zalo: settings.zalo || "",
-    facebook: settings.facebook || "",
-    tiktok: (settings as any).tiktok || "",
-    youtube: (settings as any).youtube || "",
-    analytics: settings.analytics || "",
-    gtm: settings.gtm || "",
+  const createSettingsForm = (source: SiteSetting | any) => ({
+    logo: source.logo || "",
+    hotline: source.hotline || "",
+    email: source.email || "",
+    contactEmail: source.contactEmail || "",
+    zalo: source.zalo || "",
+    facebook: source.facebook || "",
+    tiktok: source.tiktok || "",
+    youtube: source.youtube || "",
+    analytics: source.analytics || "",
+    gtm: source.gtm || "",
+    brandPrimaryColor: source.brandPrimaryColor || "#9A3412",
+    brandSecondaryColor: source.brandSecondaryColor || "#EA580C",
+    brandAccentColor: source.brandAccentColor || "#F59E0B",
+    brandHeaderColor: source.brandHeaderColor || "#FFFDFC",
+    brandFooterColor: source.brandFooterColor || "#0F172A",
+    brandButtonColor: source.brandButtonColor || "#9A3412",
+    brandTitleColor: source.brandTitleColor || "#3F190F",
+    brandFontFamily: source.brandFontFamily || "Inter",
+    brandFontSource: source.brandFontSource || "preset",
+    brandFontUrl: source.brandFontUrl || "",
   });
+
+  // Settings form - sync with settings from DB
+  const [settingsForm, setSettingsForm] = useState(createSettingsForm(settings));
 
   // Premium UI toast notification states
   const [toasts, setToasts] = useState<
@@ -242,6 +256,18 @@ export default function AdminDashboardView({
     try {
       const res = await fetch("/api/notifications/read-all", {
         method: "PATCH",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) loadDashboardData();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleDeleteNotification = async (id: string) => {
+    try {
+      const res = await fetch(`/api/notifications/${id}`, {
+        method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) loadDashboardData();
@@ -573,20 +599,9 @@ export default function AdminDashboardView({
   // SETTINGS HANDLERS
   // ==========================================
 
-  // Dong bo settingsForm moi khi settings prop thay doi (sau khi save va refetch)
+  // Sync settings form when settings prop changes after save and refetch.
   useEffect(() => {
-    setSettingsForm({
-      logo: settings.logo || "",
-      hotline: settings.hotline || "",
-      email: settings.email || "",
-      contactEmail: (settings as any).contactEmail || "",
-      zalo: settings.zalo || "",
-      facebook: settings.facebook || "",
-      tiktok: (settings as any).tiktok || "",
-      youtube: (settings as any).youtube || "",
-      analytics: settings.analytics || "",
-      gtm: settings.gtm || "",
-    });
+    setSettingsForm(createSettingsForm(settings));
   }, [settings]);
 
   const handleOpenSettingsTab = () => {
@@ -609,18 +624,8 @@ export default function AdminDashboardView({
         const result = await res.json();
         // Cap nhat settingsForm ngay lap tuc voi du lieu tu server
         if (result.settings) {
-          setSettingsForm({
-            logo: result.settings.logo || "",
-            hotline: result.settings.hotline || "",
-            email: result.settings.email || "",
-            contactEmail: result.settings.contactEmail || "",
-            zalo: result.settings.zalo || "",
-            facebook: result.settings.facebook || "",
-            tiktok: result.settings.tiktok || "",
-            youtube: result.settings.youtube || "",
-            analytics: result.settings.analytics || "",
-            gtm: result.settings.gtm || "",
-          });
+          setSettingsForm(createSettingsForm(result.settings));
+          onSettingsSaved?.(result.settings);
         }
         addToast("Đã lưu các cấu hình website thành công!", "success");
         setRefreshSettings(true); // reload settings global tu DB
@@ -697,6 +702,7 @@ export default function AdminDashboardView({
           notificationUnreadCount={notificationUnreadCount}
           onNotificationRead={handleMarkNotificationRead}
           onNotificationsReadAll={handleMarkAllNotificationsRead}
+          onNotificationDelete={handleDeleteNotification}
         />
 
         {/* CONTAINER CONTENT VIEW */}
@@ -728,6 +734,7 @@ export default function AdminDashboardView({
               handleDeleteBlog={handleDeleteBlog}
               settingsForm={settingsForm}
               setSettingsForm={setSettingsForm}
+              handleImageUpload={handleImageUpload}
               handleSettingsSubmit={handleSettingsSubmit}
               submitting={submitting}
               addToast={addToast}

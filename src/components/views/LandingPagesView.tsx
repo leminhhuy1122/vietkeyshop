@@ -160,17 +160,17 @@ export default function LandingPagesView({ settings }: LandingPagesViewProps) {
         </div>
 
         {/* Filter And Search Bar Section */}
-        <div className="bg-card p-6 rounded-2xl border border-border shadow-sm flex flex-col md:flex-row gap-4 items-center animate-fade-in">
+        <div className="bg-card p-3 md:p-6 rounded-[1.75rem] shadow-sm flex flex-col md:flex-row gap-3 md:gap-4 items-center animate-fade-in">
           {/* SEARCH BOX */}
           <div className="relative w-full md:w-80">
-            <Search className="absolute left-3 top-3.5 w-4.5 h-4.5 text-foreground-muted" />
+            <Search className="absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-foreground-muted" />
             <input
               id="search-input"
               type="text"
               placeholder="Tìm theo chủ đề, tiêu đề..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 bg-background border border-border rounded-xl text-foreground placeholder:text-foreground-muted focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm transition"
+              className="min-h-11 w-full pl-11 pr-4 bg-background rounded-full text-foreground placeholder:text-foreground-muted focus:outline-none focus:ring-2 focus:ring-[#F97316] text-sm transition"
             />
           </div>
 
@@ -183,10 +183,10 @@ export default function LandingPagesView({ settings }: LandingPagesViewProps) {
                 newParams.delete("category");
                 setSearchParams(newParams);
               }}
-              className={`px-4.5 py-2.5 rounded-xl text-sm font-semibold transition whitespace-nowrap ${
-                selectedCat === "all"
-                  ? "bg-primary text-white shadow-sm"
-                  : "bg-badge-bg text-foreground-secondary hover:bg-card-hover border border-border"
+                className={`min-h-11 px-4.5 rounded-full text-sm font-semibold transition whitespace-nowrap ${
+                  selectedCat === "all"
+                  ? "bg-[#F97316] text-white shadow-sm"
+                  : "bg-badge-bg text-foreground-secondary hover:bg-card-hover"
               }`}
             >
               Tất cả mẫu
@@ -201,10 +201,10 @@ export default function LandingPagesView({ settings }: LandingPagesViewProps) {
                     category: cat.slug,
                   });
                 }}
-                className={`px-4.5 py-2.5 rounded-xl text-sm font-semibold transition whitespace-nowrap ${
+                className={`min-h-11 px-4.5 rounded-full text-sm font-semibold transition whitespace-nowrap ${
                   selectedCat === cat.id
-                    ? "bg-primary text-white shadow-sm"
-                    : "bg-badge-bg text-foreground-secondary hover:bg-card-hover border border-border"
+                    ? "bg-[#F97316] text-white shadow-sm"
+                    : "bg-badge-bg text-foreground-secondary hover:bg-card-hover"
                 }`}
               >
                 {cat.name}
@@ -215,11 +215,11 @@ export default function LandingPagesView({ settings }: LandingPagesViewProps) {
 
         {/* LOADING STATE - SKELETON */}
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-8">
             {[...Array(6)].map((_, idx) => (
               <div
                 key={idx}
-                className="bg-card rounded-2xl h-96 border border-border animate-pulse"
+                className="bg-card rounded-[1.5rem] h-56 md:h-96 animate-pulse"
               />
             ))}
           </div>
@@ -235,59 +235,65 @@ export default function LandingPagesView({ settings }: LandingPagesViewProps) {
           </div>
         ) : (
           /* LP LIST GRID */
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-8">
             {filteredLps.map((lp) => (
-              <div
+              <button
                 key={lp.id}
-                className="bg-card rounded-3xl overflow-hidden border border-border shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col group"
+                type="button"
+                onClick={() => handleOpenDetail(lp)}
+                className="relative bg-card rounded-[1.5rem] overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 active:scale-[0.98] transition-all duration-300 flex flex-col group text-left focus:outline-none focus:ring-2 focus:ring-[#F97316]"
               >
-                {/* Visual Cover */}
-                <div className="relative h-52 overflow-hidden bg-slate-100">
+                <span className="absolute right-2 bottom-2 z-10 flex min-h-11 min-w-11 items-center justify-center rounded-full bg-[#F97316] text-white shadow-lg shadow-orange-500/30 transition group-hover:scale-110">
+                  <Play className="w-4 h-4 fill-current" />
+                </span>
+
+                <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
                   <img
                     src={lp.thumbnail}
                     alt={lp.title}
                     referrerPolicy="no-referrer"
                     className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
                   />
-                  {/* Status Overlay price tag */}
-                  <div className="absolute top-4 left-4 bg-background-secondary/90 backdrop-blur-md text-primary dark:text-[#818CF8] border border-border px-3 py-1 text-xs font-semibold rounded-lg shadow-sm">
-                    {categories.find((c) => c.id === lp.categoryId)?.name ||
-                      "Nổi bật"}
+                  <div className="absolute left-2 top-2 rounded-full bg-background-secondary/90 px-2.5 py-1 text-[10px] font-bold uppercase text-primary shadow-sm backdrop-blur-md">
+                    {categories.find((category) => category.id === lp.categoryId)?.name ||
+                      "Featured"}
                   </div>
-                  <div className="absolute top-4 right-4 bg-primary text-white px-3.5 py-1.5 text-sm font-space font-bold rounded-xl shadow-sm">
-                    {lp.price.toLocaleString("vi-VN")}đ
+                  <div className="absolute right-2 top-2 rounded-full bg-slate-950/90 px-2.5 py-1 text-xs font-space font-bold text-white shadow-sm">
+                    {lp.price.toLocaleString("en-US")}
                   </div>
                 </div>
 
-                {/* Information Block */}
-                <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
-                  <div className="space-y-2">
-                    <h2 className="font-bold text-lg text-foreground group-hover:text-primary transition line-clamp-1">
+                <div className="min-h-[6.75rem] p-3 pb-14">
+                  <div className="space-y-1.5">
+                    <h2 className="mobile-card-title font-bold text-sm leading-snug text-foreground group-hover:text-[#C2410C] transition">
                       {lp.title}
                     </h2>
-                    <p className="text-foreground-secondary text-sm leading-relaxed line-clamp-3">
+                    <p className="hidden">
                       {lp.description}
                     </p>
                   </div>
-
-                  {/* Actions Links */}
-                  <div className="border-t border-border pt-4 flex items-center justify-between">
-                    <span className="text-xs text-foreground-muted font-mono tracking-wider bg-background-secondary px-2 py-1 rounded">
-                      Demo: {lp.slug}
-                    </span>
-                    <button
-                      onClick={() => handleOpenDetail(lp)}
-                      className="text-white bg-primary hover:bg-primary-hover px-4 py-2.5 rounded-xl text-xs font-semibold transition flex items-center space-x-1"
-                    >
-                      <Play className="w-3.5 h-3.5 fill-current" />
-                      <span>Xem Demo & Trải nghiệm</span>
-                    </button>
-                  </div>
                 </div>
-              </div>
+              </button>
             ))}
           </div>
         )}
+      </div>
+
+      <div className="fixed inset-x-4 bottom-24 z-40 flex justify-end gap-3 md:hidden pointer-events-none">
+        <button
+          type="button"
+          className="pointer-events-auto min-h-11 min-w-11 rounded-full bg-slate-950 text-white shadow-xl flex items-center justify-center active:scale-95"
+          aria-label="Open filters"
+        >
+          <Filter className="h-4 w-4" />
+        </button>
+        <a
+          href={`tel:${settings.hotline.replace(/\./g, "")}`}
+          className="pointer-events-auto min-h-11 min-w-11 rounded-full bg-[#F97316] text-white shadow-xl shadow-orange-500/25 flex items-center justify-center active:scale-95"
+          aria-label="Call now"
+        >
+          <Phone className="h-4 w-4" />
+        </a>
       </div>
 
       {/* ========================================================

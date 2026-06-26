@@ -1,13 +1,17 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
-  Menu,
-  X,
   Sun,
   Moon,
   LogIn,
   PhoneCall,
   LayoutDashboard,
+  Home,
+  Layers,
+  Briefcase,
+  BadgeDollarSign,
+  BookOpen,
+  MessageCircle,
 } from "lucide-react";
 import { SiteSetting } from "../../types/index.js";
 
@@ -22,11 +26,8 @@ export default function Header({
   darkMode,
   setDarkMode,
 }: HeaderProps) {
-  const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
-
-  // Kiểm tra token xem đã đăng nhập admin chưa để hiện shortcut admin dashboard
   const token = localStorage.getItem("vietkey_admin_token");
 
   useEffect(() => {
@@ -38,20 +39,25 @@ export default function Header({
   }, []);
 
   const navLinks = [
-    { name: "Trang chủ", path: "/" },
-    { name: "Mẫu Landing Page", path: "/landing-pages" },
-    { name: "Dịch vụ thiết kế", path: "/services" },
-    { name: "Bảng giá", path: "/pricing" },
-    { name: "Blog SEO", path: "/blog" },
-    { name: "Liên hệ", path: "/contact" },
+    { name: "Home", path: "/", icon: Home },
+    { name: "Products", path: "/landing-pages", icon: Layers },
+    { name: "Services", path: "/services", icon: Briefcase },
+    { name: "Pricing", path: "/pricing", icon: BadgeDollarSign },
+    { name: "Blog", path: "/blog", icon: BookOpen },
+    { name: "Contact", path: "/contact", icon: MessageCircle },
   ];
+
+  const mobileNavLinks = navLinks.filter((link) =>
+    ["/", "/landing-pages", "/blog", "/contact"].includes(link.path),
+  );
 
   const currentPath = location.pathname;
 
   return (
-    <header
+    <>
+      <header
       id="global-header"
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      className={`brand-header fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
           ? "bg-background-secondary/80 dark:bg-background/80 backdrop-blur-md shadow-md border-b border-border py-3"
           : "bg-transparent py-5"
@@ -59,20 +65,18 @@ export default function Header({
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
-          {/* Logo */}
           <Link
             to="/"
             className="flex items-center group"
             aria-label="VietKey Shop"
           >
             <img
-              src="/logo1.png"
+              src={settings.logo || "/logo1.png"}
               alt="VietKey Shop"
               className="h-11 w-auto object-contain group-hover:scale-105 transition-transform"
             />
           </Link>
 
-          {/* Desktop Nav */}
           <nav className="hidden md:flex items-center space-x-1">
             {navLinks.map((link) => {
               const isActive =
@@ -95,9 +99,7 @@ export default function Header({
             })}
           </nav>
 
-          {/* Action Buttons */}
           <div className="hidden md:flex items-center space-x-3">
-            {/* Dark Mode Toggle */}
             <button
               id="theme-toggle"
               onClick={() => setDarkMode(!darkMode)}
@@ -123,28 +125,28 @@ export default function Header({
               <Link
                 to="/admin/login"
                 className="p-2 text-slate-400 hover:text-indigo-600 dark:hover:text-white transition"
-                title="Đăng nhập Admin"
+                title="Admin login"
+                aria-label="Admin login"
               >
                 <LogIn className="w-4.5 h-4.5" />
               </Link>
             )}
 
-            {/* Hotline CTA */}
             <a
               id="hotline-btn"
               href={`tel:${settings.hotline.replace(/\./g, "")}`}
-              className="flex items-center space-x-2 px-4.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold shadow-sm shadow-indigo-100 hover:shadow duration-200 transition"
+              className="brand-button flex items-center space-x-2 px-4.5 py-2 text-white rounded-lg text-xs font-semibold shadow-sm hover:shadow duration-200 transition"
             >
               <PhoneCall className="w-3.5 h-3.5" />
               <span>{settings.hotline}</span>
             </a>
           </div>
 
-          {/* Mobile Right Icons & Menu button */}
           <div className="flex items-center md:hidden space-x-2">
             <button
               onClick={() => setDarkMode(!darkMode)}
-              className="p-2 rounded-lg border border-border text-foreground-secondary transition"
+              className="min-w-11 min-h-11 rounded-full border border-border bg-card text-foreground-secondary transition flex items-center justify-center active:scale-95"
+              aria-label="Toggle theme"
             >
               {darkMode ? (
                 <Sun className="w-4.5 h-4.5 text-amber-400" />
@@ -154,72 +156,44 @@ export default function Header({
             </button>
 
             {token && (
-              <Link to="/admin/dashboard" className="p-2 text-primary">
+              <Link
+                to="/admin/dashboard"
+                className="min-w-11 min-h-11 rounded-full text-primary flex items-center justify-center active:scale-95"
+                aria-label="Admin dashboard"
+              >
                 <LayoutDashboard className="w-5 h-5" />
               </Link>
             )}
-
-            <button
-              id="mobile-menu-btn"
-              onClick={() => setIsOpen(!isOpen)}
-              className="p-2 rounded-lg bg-card border border-border text-foreground-secondary hover:text-foreground focus:outline-none"
-            >
-              {isOpen ? (
-                <X className="w-6 h-6" />
-              ) : (
-                <Menu className="w-6 h-6" />
-              )}
-            </button>
           </div>
         </div>
       </div>
+      </header>
 
-      {/* Mobile Drawer Menu */}
-      {isOpen && (
-        <div className="md:hidden absolute top-full left-0 right-0 bg-background-secondary border-b border-border shadow-xl transition-all p-4 space-y-2 animate-in slide-in-from-top-4 duration-200">
-          <div className="flex flex-col space-y-1">
-            {navLinks.map((link) => {
-              const isActive =
-                link.path === "/"
-                  ? currentPath === "/"
-                  : currentPath.startsWith(link.path);
-              return (
-                <Link
-                  key={link.path}
-                  to={link.path}
-                  onClick={() => setIsOpen(false)}
-                  className={`px-4 py-3 rounded-xl text-base font-medium transition ${
-                    isActive
-                      ? "text-primary dark:text-[#818CF8] bg-badge-bg font-semibold"
-                      : "text-slate-700 dark:text-slate-350 hover:bg-slate-100 dark:hover:bg-slate-800/40"
-                  }`}
-                >
-                  {link.name}
-                </Link>
-              );
-            })}
-          </div>
-          <div className="border-t border-border my-3 pt-3 flex flex-col space-y-2">
-            <a
-              href={`tel:${settings.hotline.replace(/\./g, "")}`}
-              className="flex items-center justify-center space-x-2 w-full py-3 bg-primary hover:bg-primary-hover text-white rounded-xl text-base font-bold shadow-sm shadow-indigo-100"
-            >
-              <PhoneCall className="w-5 h-5" />
-              <span>Gọi tư vấn: {settings.hotline}</span>
-            </a>
-            {!token && (
+      <nav className="fixed inset-x-5 bottom-3 z-[80] md:hidden rounded-[1.75rem] bg-slate-950/92 text-white shadow-[0_18px_50px_rgba(15,23,42,0.32)] backdrop-blur-xl ring-1 ring-white/10">
+        <div className="grid grid-cols-4 gap-1 p-2">
+          {mobileNavLinks.map((link) => {
+            const isActive =
+              link.path === "/"
+                ? currentPath === "/"
+                : currentPath.startsWith(link.path);
+            const Icon = link.icon;
+            return (
               <Link
-                to="/admin/login"
-                onClick={() => setIsOpen(false)}
-                className="flex items-center justify-center space-x-2 w-full py-2.5 border border-border text-foreground-secondary hover:bg-card-hover rounded-xl text-sm font-medium"
+                key={link.path}
+                to={link.path}
+                aria-label={link.name}
+                className={`min-h-11 rounded-2xl flex items-center justify-center transition active:scale-95 ${
+                  isActive
+                    ? "bg-[#F97316] text-white shadow-lg shadow-orange-500/25"
+                    : "text-slate-300 hover:bg-white/10 hover:text-white"
+                }`}
               >
-                <LogIn className="w-4 h-4" />
-                <span>Đăng nhập nội bộ (Admin)</span>
+                <Icon className="w-5 h-5" />
               </Link>
-            )}
-          </div>
+            );
+          })}
         </div>
-      )}
-    </header>
+      </nav>
+    </>
   );
 }

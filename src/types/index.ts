@@ -67,6 +67,16 @@ export interface BlogPost {
 export interface SiteSetting {
   id: string;
   logo?: string;
+  brandPrimaryColor?: string;
+  brandSecondaryColor?: string;
+  brandAccentColor?: string;
+  brandHeaderColor?: string;
+  brandFooterColor?: string;
+  brandButtonColor?: string;
+  brandTitleColor?: string;
+  brandFontFamily?: string;
+  brandFontSource?: "preset" | "uploaded";
+  brandFontUrl?: string;
   hotline: string;
   email: string;
   contactEmail?: string;

@@ -263,6 +263,16 @@ export class ShopService {
 
     const created = await SiteSettingModel.create({
       logo: "/logo1.png",
+      brandPrimaryColor: "#9A3412",
+      brandSecondaryColor: "#EA580C",
+      brandAccentColor: "#F59E0B",
+      brandHeaderColor: "#FFFDFC",
+      brandFooterColor: "#0F172A",
+      brandButtonColor: "#9A3412",
+      brandTitleColor: "#3F190F",
+      brandFontFamily: "Inter",
+      brandFontSource: "preset",
+      brandFontUrl: "",
       hotline: "",
       email: "",
       contactEmail: "",
@@ -279,6 +289,16 @@ export class ShopService {
   public static async updateSettings(data: any) {
     const allowedFields = [
       "logo",
+      "brandPrimaryColor",
+      "brandSecondaryColor",
+      "brandAccentColor",
+      "brandHeaderColor",
+      "brandFooterColor",
+      "brandButtonColor",
+      "brandTitleColor",
+      "brandFontFamily",
+      "brandFontSource",
+      "brandFontUrl",
       "hotline",
       "email",
       "contactEmail",
@@ -293,10 +313,16 @@ export class ShopService {
     for (const key of allowedFields) {
       if (key in data) sanitized[key] = data[key];
     }
-    const settings = await SiteSettingModel.findOneAndUpdate(
-      {},
+    const current = await SiteSettingModel.findOne().sort({ updatedAt: -1 });
+    if (!current) {
+      const created = await SiteSettingModel.create(sanitized);
+      return this.normalizeSettings(created);
+    }
+
+    const settings = await SiteSettingModel.findByIdAndUpdate(
+      current._id,
       { $set: sanitized },
-      { new: true, upsert: true },
+      { new: true },
     );
     return this.normalizeSettings(settings!);
   }
